@@ -1,0 +1,46 @@
+---
+author: "Jyoti Ankam"
+title: "hw_3"
+date: "April 4, 2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = F)
+knitr::opts_chunk$set(message = F)
+```
+
+Loading the library ISLR
+```{r}
+
+library(ISLR)
+
+```
+
+Viewing the Weekly dataset
+```{r}
+
+data(Weekly)
+names(Weekly)
+View(Weekly)
+
+
+```
+
+Let's use the summary() fuction to see the numerical summaries of the dataset
+
+```{r}
+
+summary(Weekly)
+
+```
+
+```{r}
+cor(Weekly[,-9])
+plot(Weekly$Volume)
+pairs(Weekly)
+```
+
+As evident, all the Lags (1 to 5) have similar means and medians which implies that the return percentage has no correlation with time.
+Also from the plots above, we can see that there is a correlation between Year and Volume - Volume increases as Year increases. Apart of these two variables, no other variables display any kind of relationship. 
