@@ -27,6 +27,7 @@ View(Weekly)
 
 
 ```
+a) SUMMARIES OF THE DATASET:
 
 Let's use the summary() fuction to see the numerical summaries of the dataset
 
@@ -36,11 +37,55 @@ summary(Weekly)
 
 ```
 
+Let's see some graphical summaries
+
 ```{r}
 cor(Weekly[,-9])
 plot(Weekly$Volume)
 pairs(Weekly)
 ```
 
+#Summaries
+
 As evident, all the Lags (1 to 5) have similar means and medians which implies that the return percentage has no correlation with time.
-Also from the plots above, we can see that there is a correlation between Year and Volume - Volume increases as Year increases. Apart of these two variables, no other variables display any kind of relationship. 
+Also from the plots above (for each pair), we can see that there is a correlation between Year and Volume - Volume increases as Year increases. Apart of these two variables, no other variables display any kind of relationship. 
+
+b) Using the full data set to perform a logistic regression with Direction as the response and the five Lag variables plus Volume as predictors:
+
+# Logistic Regression
+```{r}
+
+log.reg <- glm(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5 + Volume, family=binomial, data= Weekly)
+summary(log.reg)
+
+```
+
+As seen in the results, only Lag2 is statistically significant with a p-value of 0.0296 which is < 0.05
+All the other predictors are statisitcally significant. Higher p-values indicates that there is not enough evidence to reject Null hypothesis. With p-value of 0.0296, Lag2 displays some statistical significance.
+
+c) Computing the confusion matrix and overall fraction of correct predictions. Briefly explaining what the confusion matrix is telling you:
+
+# Confusion Matrix
+
+```{r}
+
+log.probs <- predict(log.reg,type="response")
+log.probs[1:10]
+
+log.pred <- ifelse(log.probs > 0.5, "Up", "Down")
+
+log.table <- table(log.pred,Weekly$Direction)
+
+mean <- (log.table["Down", "Down"] + log.table["Up", "Up"])/nrow(Weekly)
+error <- 1 - mean
+
+View(mean) #0.5610
+View(error)#0.4389
+
+```
+
+The % of correct predictions is 56.1% without making Type 1 or 2 errors. This means that we were able to perdict the correct trend 56.1% times and also indicates that our prediction is wrong 43.9 % times. 
+
+
+
+
