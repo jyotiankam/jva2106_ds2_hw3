@@ -12,6 +12,7 @@ knitr::opts_chunk$set(message = F)
 ```
 
 Loading the library ISLR
+
 ```{r}
 
 library(ISLR)
@@ -19,12 +20,12 @@ library(ISLR)
 ```
 
 Viewing the Weekly dataset
+
 ```{r}
 
 data(Weekly)
 names(Weekly)
 View(Weekly)
-
 
 ```
 a) SUMMARIES OF THE DATASET:
@@ -53,6 +54,7 @@ Also from the plots above (for each pair), we can see that there is a correlatio
 b) Using the full data set to perform a logistic regression with Direction as the response and the five Lag variables plus Volume as predictors:
 
 # Logistic Regression
+
 ```{r}
 
 log.reg <- glm(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5 + Volume, family=binomial, data= Weekly)
@@ -82,10 +84,22 @@ error <- 1 - mean
 View(mean) #0.5610
 View(error)#0.4389
 
+sensitivity <-log.table ["Up", "Up"]/(log.table["Down", "Up"] + log.table["Up", "Up"])
+View(sensitivity) #0.9206
+
+specificity <-log.table ["Down", "Down"]/(log.table["Down", "Down"] + log.table["Up", "Down"])
+View(specificity)#0.1115
+
 ```
 
-The % of correct predictions is 56.1% without making Type 1 or 2 errors. This means that we were able to perdict the correct trend 56.1% times and also indicates that our prediction is wrong 43.9 % times. 
+Based on the mean (accuracy): the % of correct predictions is 56.1% without making Type 1 or 2 errors. This means that we were able to perdict the correct trend 56.1% times and also indicates that our prediction is wrong 43.9 % times. 
 
-A confusion matrix is a table that is often used to describe the performance of a classification model (or "classifier") on a set of test data for which the true values are known. The number at the 
+A confusion matrix is a table that is often used to describe the performance of a classification model (or "classifier") on a set of test data for which the true values are known. Table () is used to create a confusion matrix. The number at the diagonal gives us the number of correct predictions and the number off the diagonal gives us the number of incorrect predictions.
+In this case, the model predicts well for UP rather than DOWN. When the market goes Up, the model predicts it right 92.06% of the times, while, when the market goes Down, it predicts it right only 11.15% of the times.
+
+
+
+
+
 
 
