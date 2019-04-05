@@ -16,6 +16,8 @@ Loading the library ISLR
 ```{r}
 
 library(ISLR)
+library(pROC)
+library(MASS)
 
 ```
 
@@ -41,15 +43,16 @@ summary(Weekly)
 Let's see some graphical summaries
 
 ```{r}
+
 cor(Weekly[,-9])
 plot(Weekly$Volume)
 pairs(Weekly)
+
 ```
 
 #Summaries
 
-As evident, all the Lags (1 to 5) have similar means and medians which implies that the return percentage has no correlation with time.
-Also from the plots above (for each pair), we can see that there is a correlation between Year and Volume - Volume increases as Year increases. Apart of these two variables, no other variables display any kind of relationship. 
+As evident, all the Lags (1 to 5) have similar means and medians which implies that the return percentage has no correlation with time. The correlations between the “lag” variables and today’s returns are close to zero. The only substantial correlation is between “Year” and “Volume”. When we plot “Volume”, we see that it is increasing over time. Apart of these two variables, no other variables display any kind of relationship. 
 
 b) Using the full data set to perform a logistic regression with Direction as the response and the five Lag variables plus Volume as predictors:
 
@@ -69,6 +72,8 @@ c) Computing the confusion matrix and overall fraction of correct predictions. B
 
 # Confusion Matrix
 
+We first consider the Bayes classifier (cutoff 0.5) and evaluate its performance on the test data.
+
 ```{r}
 
 log.probs <- predict(log.reg,type="response")
@@ -78,11 +83,11 @@ log.pred <- ifelse(log.probs > 0.5, "Up", "Down")
 
 log.table <- table(log.pred,Weekly$Direction)
 
-mean <- (log.table["Down", "Down"] + log.table["Up", "Up"])/nrow(Weekly)
-error <- 1 - mean
+accuracy <- (log.table["Down", "Down"] + log.table["Up", "Up"])/nrow(Weekly)
+error_rate <- 1 - accuracy
 
-View(mean) #0.5610
-View(error)#0.4389
+View(accuracy) #0.5610
+View(error_rate)#0.4389
 
 sensitivity <-log.table ["Up", "Up"]/(log.table["Down", "Up"] + log.table["Up", "Up"])
 View(sensitivity) #0.9206
@@ -92,12 +97,60 @@ View(specificity)#0.1115
 
 ```
 
-Based on the mean (accuracy): the % of correct predictions is 56.1% without making Type 1 or 2 errors. This means that we were able to perdict the correct trend 56.1% times and also indicates that our prediction is wrong 43.9 % times. 
+Based on the accuracy,  the % of correct predictions is 56.1% without making Type 1 or 2 errors (i.e. the percentage of correct predictions on the training data is (54+557)/1089 wich is equal to 56.1065%). This means that we were able to perdict the correct trend 56.1% times and also indicates that our prediction is wrong 43.9 % times (i.e. in other words 43.8934803% is the training error rate, which is often overly optimistic)
+In this case, the model predicts well for UP rather than Down. When the market goes Up, the model predicts it right 92.06% of the times, while, when the market goes Down, it predicts it right only 11.15% of the times. That is to say that for weeks when the market goes up, the model is right 92.0661% of the time (557/(48+557)). For weeks when the market goes down, the model is right only 11.1570% of the time (54/(54+430)).
 
 A confusion matrix is a table that is often used to describe the performance of a classification model (or "classifier") on a set of test data for which the true values are known. Table () is used to create a confusion matrix. The number at the diagonal gives us the number of correct predictions and the number off the diagonal gives us the number of incorrect predictions.
-In this case, the model predicts well for UP rather than DOWN. When the market goes Up, the model predicts it right 92.06% of the times, while, when the market goes Down, it predicts it right only 11.15% of the times.
 
+(d) Plotting the ROC curve using the predicted probability from logistic regression and reporting the AUC:
 
+```{r}
+
+roc.glm <- roc(Weekly$Direction, log.probs)
+plot(roc.glm, legacy.axes = TRUE, print.auc = TRUE)
+plot(smooth(roc.glm), col = 4, add = TRUE)
+
+```
+
+The AUC is 0.554
+
+e) Now fitting the logistic regression model using a training data period from 1990 to 2008, with Lag1 and Lag2 as the predictors.
+
+```{r}
+
+training <- c(Weekly$Year < 2009)
+Weekly.heldout <- Weekly[!training, ]
+Direction.heldout <- Weekly$Direction[!training]
+log.reg2 <- glm(Direction ~ Lag1 + Lag2, data = Weekly, family = binomial, subset = training)
+summary(log.reg2)
+
+```
+Creating a confusion matrix and performance measures for this heldout model (Note: this section is not necessarily a part of answer to question e)
+
+```{r}
+log.probs2 <- predict(log.reg2, newdata=Weekly.heldout, type="response")
+log.pred2 <- ifelse(log.probs2 > 0.5, "Up", "Down")
+log.table2 <- table(log.pred2, Direction.heldout)
+
+accuracy2 <- (log.table["Down", "Down"] + log.table["Up", "Up"])/nrow(Weekly.heldout)
+error_rate2 <- 1 - accuracy2
+
+sensitivity2 <-log.table2 ["Up", "Up"]/(log.table2["Down", "Up"] + log.table2["Up", "Up"])
+
+specificity2 <-log.table2 ["Down", "Down"]/(log.table2["Down", "Down"] + log.table2["Up", "Down"])
+
+```
+
+Plotting the ROC curve using the held out data (that is, the data from 2009 and 2010) and reporting the AUC:
+
+```{r}
+
+roc.glm2 <- roc(Direction.heldout, log.probs2)
+plot(roc.glm2, legacy.axes = TRUE, print.auc = TRUE)
+plot(smooth(roc.glm2), col = 4, add = TRUE)
+
+```
+The AUC is 0.556
 
 
 
