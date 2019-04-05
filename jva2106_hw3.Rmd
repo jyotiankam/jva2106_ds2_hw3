@@ -61,7 +61,7 @@ summary(log.reg)
 ```
 
 As seen in the results, only Lag2 is statistically significant with a p-value of 0.0296 which is < 0.05
-All the other predictors are statisitcally significant. Higher p-values indicates that there is not enough evidence to reject Null hypothesis. With p-value of 0.0296, Lag2 displays some statistical significance.
+All the other predictors are statisitcally insignificant. Higher p-values indicates that there is not enough evidence to reject Null hypothesis. With p-value of 0.0296, Lag2 displays some statistical significance.
 
 c) Computing the confusion matrix and overall fraction of correct predictions. Briefly explaining what the confusion matrix is telling you:
 
@@ -86,6 +86,6 @@ View(error)#0.4389
 
 The % of correct predictions is 56.1% without making Type 1 or 2 errors. This means that we were able to perdict the correct trend 56.1% times and also indicates that our prediction is wrong 43.9 % times. 
 
-
+A confusion matrix is a table that is often used to describe the performance of a classification model (or "classifier") on a set of test data for which the true values are known. The number at the 
 
 
