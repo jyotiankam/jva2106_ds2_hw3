@@ -18,6 +18,7 @@ Loading the library ISLR
 library(ISLR)
 library(pROC)
 library(MASS)
+library(class)
 
 ```
 
@@ -134,11 +135,14 @@ log.table2 <- table(log.pred2, Direction.heldout)
 
 accuracy2 <- (log.table["Down", "Down"] + log.table["Up", "Up"])/nrow(Weekly.heldout)
 error_rate2 <- 1 - accuracy2
-
 sensitivity2 <-log.table2 ["Up", "Up"]/(log.table2["Down", "Up"] + log.table2["Up", "Up"])
-
 specificity2 <-log.table2 ["Down", "Down"]/(log.table2["Down", "Down"] + log.table2["Up", "Down"])
 
+
+accuracy2
+error_rate2
+sensitivity2
+specificity2
 ```
 
 Plotting the ROC curve using the held out data (that is, the data from 2009 and 2010) and reporting the AUC:
@@ -161,13 +165,48 @@ fit.lda
 plot(fit.lda)
 
 ```
-
 ```{r}
 
 pred.lda <- predict(fit.lda, Weekly.heldout)
 log.table3 <- table(pred.lda$class, Direction.heldout)
 log.table3
 
+accuracy3 <- (log.table3["Down", "Down"] + log.table3["Up", "Up"])/nrow(Weekly.heldout)
+error_rate3 <- 1 - accuracy3
+sensitivity3 <-log.table3 ["Up", "Up"]/(log.table3["Down", "Up"] + log.table3["Up", "Up"])
+specificity3 <-log.table3 ["Down", "Down"]/(log.table3["Down", "Down"] + log.table3["Up", "Down"])
+
 ```
 
+```{r}
+
+fit.qda <- qda(Direction ~ Lag1 + Lag2, data = Weekly, subset = training)
+fit.qda
+
+```
+```{r}
+
+pred.qda <- predict(fit.qda, Weekly.heldout)
+log.table4 <- table(pred.qda$class, Direction.heldout)
+log.table4
+
+accuracy4 <- (log.table4["Down", "Down"] + log.table4["Up", "Up"])/nrow(Weekly.heldout)
+error_rate4 <- 1 - accuracy4
+sensitivity4 <-log.table4 ["Up", "Up"]/(log.table4["Down", "Up"] + log.table4["Up", "Up"])
+specificity4 <-log.table4 ["Down", "Down"]/(log.table4["Down", "Down"] + log.table4["Up", "Down"])
+```
+
+(g) Repeat (e) using KNN. Briefly discuss your results.
+
+```{r}
+
+train.X <- as.matrix(Weekly$Lag1, Weekly$Lag2[training])
+test.X <- as.matrix(Weekly$Lag1, Weekly$Lag2[!training])
+train.Direction <- Weekly$Direction[training]
+set.seed(1)
+pred.knn <- knn(train.X, test.X, train.Direction, k = 1)
+table(pred.knn, Direction.heldout)
+
+
+```
 
