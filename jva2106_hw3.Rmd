@@ -125,7 +125,7 @@ log.reg2 <- glm(Direction ~ Lag1 + Lag2, data = Weekly, family = binomial, subse
 summary(log.reg2)
 
 ```
-Creating a confusion matrix and performance measures for this heldout model (Note: this section is not necessarily a part of answer to question e)
+Creating a confusion matrix and performance measures for this heldout model (Note: since the question doen not ask for this, this section is not necessarily a part of the answer to question e)
 
 ```{r}
 log.probs2 <- predict(log.reg2, newdata=Weekly.heldout, type="response")
@@ -152,7 +152,22 @@ plot(smooth(roc.glm2), col = 4, add = TRUE)
 ```
 The AUC is 0.556
 
+f) Repeating (e) using LDA which implies Linear Discriminant Analysis and QDA which implied Quadratic Discriminant Analysis:
 
+```{r}
 
+fit.lda <- lda(Direction ~ Lag1 + Lag2, data = Weekly, subset = training)
+fit.lda
+plot(fit.lda)
+
+```
+
+```{r}
+
+pred.lda <- predict(fit.lda, Weekly.heldout)
+log.table3 <- table(pred.lda$class, Direction.heldout)
+log.table3
+
+```
 
 
