@@ -2,7 +2,7 @@
 author: "Jyoti Ankam"
 title: "hw_3"
 date: "April 4, 2019"
-output: github_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -25,8 +25,8 @@ library(class)
 Viewing the Weekly dataset
 
 ```{r}
-
 data(Weekly)
+Weekly = Weekly[,-8]
 names(Weekly)
 View(Weekly)
 
@@ -45,7 +45,7 @@ Let's see some graphical summaries
 
 ```{r}
 
-cor(Weekly[,-9])
+cor(Weekly[,-8])
 plot(Weekly$Volume)
 pairs(Weekly)
 
@@ -83,6 +83,7 @@ log.probs[1:10]
 log.pred <- ifelse(log.probs > 0.5, "Up", "Down")
 
 log.table <- table(log.pred,Weekly$Direction)
+log.table
 
 accuracy <- (log.table["Down", "Down"] + log.table["Up", "Up"])/nrow(Weekly)
 error_rate <- 1 - accuracy
@@ -180,10 +181,21 @@ specificity3 <-log.table3 ["Down", "Down"]/(log.table3["Down", "Down"] + log.tab
 
 ```{r}
 
+lda.probs = pred.lda$posterior[,2]
+roc.glm3 <- roc(as.numeric(Direction.heldout), as.numeric(lda.probs))
+plot(roc.glm3, legacy.axes = TRUE, print.auc = TRUE)
+plot(smooth(roc.glm3), col = 4, add = TRUE)
+
+```
+The AUC is 0.557
+
+```{r}
+
 fit.qda <- qda(Direction ~ Lag1 + Lag2, data = Weekly, subset = training)
 fit.qda
 
 ```
+
 ```{r}
 
 pred.qda <- predict(fit.qda, Weekly.heldout)
@@ -196,17 +208,32 @@ sensitivity4 <-log.table4 ["Up", "Up"]/(log.table4["Down", "Up"] + log.table4["U
 specificity4 <-log.table4 ["Down", "Down"]/(log.table4["Down", "Down"] + log.table4["Up", "Down"])
 ```
 
+
+```{r}
+
+qda.probs = pred.qda$posterior[,2]
+roc.glm4 <- roc(as.numeric(Direction.heldout), as.numeric(qda.probs))
+plot(roc.glm4, legacy.axes = TRUE, print.auc = TRUE)
+plot(smooth(roc.glm4), col = 4, add = TRUE)
+
+
+```
+The AUC is 0.529
+
 (g) Repeat (e) using KNN. Briefly discuss your results.
 
 ```{r}
 
-train.X <- as.matrix(Weekly$Lag1, Weekly$Lag2[training])
-test.X <- as.matrix(Weekly$Lag1, Weekly$Lag2[!training])
+train.X <- as.matrix(Weekly$Lag1[training], Weekly$Lag2[training])
+test.X <- as.matrix(Weekly$Lag1[!training], Weekly$Lag2[!training])
 train.Direction <- Weekly$Direction[training]
 set.seed(1)
 pred.knn <- knn(train.X, test.X, train.Direction, k = 1)
 table(pred.knn, Direction.heldout)
 
+```
+
+```{r}
 
 ```
 
