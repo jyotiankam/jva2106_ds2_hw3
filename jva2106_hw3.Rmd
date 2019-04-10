@@ -17,6 +17,7 @@ Loading the library ISLR
 
 library(ISLR)
 library(pROC)
+library(caret)
 library(MASS)
 library(class)
 
@@ -42,6 +43,16 @@ summary(Weekly)
 ```
 
 Let's see some graphical summaries
+
+
+```{r}
+featurePlot(x = Weekly[, 1:7],
+            y = Weekly$Direction,
+            scales = list(x = list(relation = "free"),
+            y = list(relation = "free")),
+            plot = "density", pch ="|",
+            auto.key = list(columns = 2))
+```
 
 ```{r}
 
@@ -120,9 +131,11 @@ e) Now fitting the logistic regression model using a training data period from 1
 
 ```{r}
 
-training <- c(Weekly$Year < 2009)
+training <- (Weekly$Year < 2009)
+
 Weekly.heldout <- Weekly[!training, ]
 Direction.heldout <- Weekly$Direction[!training]
+
 log.reg2 <- glm(Direction ~ Lag1 + Lag2, data = Weekly, family = binomial, subset = training)
 summary(log.reg2)
 
@@ -187,7 +200,7 @@ plot(roc.glm3, legacy.axes = TRUE, print.auc = TRUE)
 plot(smooth(roc.glm3), col = 4, add = TRUE)
 
 ```
-The AUC is 0.557
+The AUC for the logistic regression model with Lag1 and Lag2 is 0.557
 
 ```{r}
 
@@ -224,16 +237,31 @@ The AUC is 0.529
 
 ```{r}
 
-train.X <- as.matrix(Weekly$Lag1[training], Weekly$Lag2[training])
-test.X <- as.matrix(Weekly$Lag1[!training], Weekly$Lag2[!training])
-train.Direction <- Weekly$Direction[training]
+ctrl <- trainControl(method = "repeatedcv",
+                      repeats = 5,
+                      summaryFunction = twoClassSummary,
+                      classProbs = TRUE)
 set.seed(1)
-pred.knn <- knn(train.X, test.X, train.Direction, k = 1)
-table(pred.knn, Direction.heldout)
+model.knn <- train(x= Weekly[training, 1:2], 
+                   y = Weekly$Direction[training],
+                   method = "knn",
+                   preProcess = c("center", "scale"),
+                   tuneGrid = data.frame(k = seq(1, 50, by = 2)),
+                   trControl = ctrl,
+                   metric = 'ROC')
+
+
+ggplot(model.knn)                   
 
 ```
 
 ```{r}
 
+pred.knn <- predict(model.knn, newdata = Weekly.heldout, type = "prob")[,2]
+
+roc.knn <- roc(Direction.heldout, pred.knn)
+plot(roc.knn, legacy.axes = TRUE, print.auc = TRUE)
 ```
+
+The AUC for the K Nearest Neighbor is 0.604
 
