@@ -2,7 +2,7 @@
 author: "Jyoti Ankam"
 title: "hw_3"
 date: "April 4, 2019"
-output: pdf_document
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -264,4 +264,10 @@ plot(roc.knn, legacy.axes = TRUE, print.auc = TRUE)
 ```
 
 The AUC for the K Nearest Neighbor is 0.604
+
+Looking at the models, it appears that logistic regression model works a little better than just random guessing. But since we have trained and tested the model, on the same set of observations, our results may be incorrect and misleading. Our training error rate which is 43.893% seems to be too optimistic and underestimating the test error rate.
+Therefore, for better prediction and accuracy of the logistic regression model, we partition the data and fit the model and then estimate how well it predicts the heldout data, thus getting a more realistic error rate.
+
+In order to compare the performance of a classifier based on different cut off points, we  get the AUC of the heldout data. More or less, the AUC of the helout data is similar to the full dataset.
+We get the AUC of the logisitc model with the complete data set as 0.557 and the AUC of the heldout data as 0.554. The AUC for the K Nearest Neighbor is 0.604. The AUC for QDA is 0.529 and for LDA is 0.557. Although, AUC for KNN is slightly higher, overall they all perform similarly as it is hard to predict changes in stock price based on the previous days (lag1 and lag2). Additionally, using the lag1 and lag2 predictors, the logisitic regression p-values are not significant for the data subset suggesting that lag1 and lag2 may not be significantly associated with the Direction. Predictors which aren't associated with the outcome cause an increase in variance without any corresponding decrease in bias, thereby resulting in inaccurate/inadequate predictions.
 
